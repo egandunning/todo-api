@@ -4,7 +4,11 @@
   "description": "Todo API",
   "main": "index.js",
   "scripts": {
-    "test": "mocha server/**/*.test.js"
+    "test": "mocha server/**/*.test.js",
+    "start": "node server/server.js"
+  },
+  "engines": {
+    "node": "8.9.1"
   },
   "author": "Egan Dunning",
   "license": "ISC",
