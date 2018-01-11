@@ -101,6 +101,10 @@ describe('GET /todos/:id', () => {
 
 describe('DELETE /todos/:id', () => {
    it('should delete a todo', done => {
-
+      request(app)
+      .get(`/todos/${ids[0]}`)
+      .expect(200)
+      .expect(res => expect(res.body.todo.text).toBe(todos[0].text))
+      .end(done);
    });
 });
