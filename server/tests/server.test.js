@@ -102,9 +102,36 @@ describe('GET /todos/:id', () => {
 describe('DELETE /todos/:id', () => {
    it('should delete a todo', done => {
       request(app)
-      .get(`/todos/${ids[0]}`)
+      .delete(`/todos/${ids[0]}`)
       .expect(200)
-      .expect(res => expect(res.body.todo.text).toBe(todos[0].text))
+      .expect(res => expect(res.body.deleted.text).toBe(todos[0].text))
+      .end((err, res) => {
+         if(err) {
+            return done(err);
+         }
+         
+         Todo.findById(ids[0])
+         .then(res => {
+            expect(res).toBe(null);
+            return done();
+         })
+         .catch(err => {
+            return done(err);
+         });
+      });
+   });
+
+   it('should return 404 if not found', done => {
+      request(app)
+      .get(`/todos/6a5534e820e17e77441e1f8b`)
+      .expect(404)
+      .end(done);
+   });
+
+   it('should return 404 if id is invalid', done => {
+      request(app)
+      .get(`/todos/0`)
+      .expect(404)
       .end(done);
    });
 });
