@@ -3,9 +3,11 @@ const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 const _ = require('lodash');
 
+require('./config/config');
 const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
+
 
 const port = process.env.PORT || 3000;
 let app = express();
