@@ -12,7 +12,9 @@ const todos = [{
    text: 'First test todo'
 }, {
    _id: ids[1],
-   text: 'Second test todo'
+   text: 'Second test todo',
+   completed: true,
+   completedAt: 123456
 }];
 
 //runs before every test (calls to it())
@@ -63,6 +65,35 @@ describe('POST /todos', () => {
          .catch(err => done(err));
       })
    });
+});
+
+describe('PATCH /todos/:id', () => {
+   it('should update the todo', done => {
+      request(app)
+      .patch(`/todos/${ids[0]}`)
+      .send({
+         text: 'changed',
+         completed: true
+      })
+      .expect(200)
+      .expect(res => {
+         expect(res.body.todo.text).toBe('changed');
+         expect(res.body.todo.completed).toBe(true);
+         expect(typeof res.body.todo.completedAt).toBe('number');
+      })
+      .end(done);
+   });
+
+   it('should clear the completedAt property', done => {
+      request(app)
+      .patch(`/todos/${ids[0]}`, {
+         text: 'changed',
+         completed: false
+      })
+      .expect(200)
+      .expect(res => expect(res.body.completed).toBe(undefined))
+      .end(done);
+   })
 });
 
 describe('GET /todos', () => {
