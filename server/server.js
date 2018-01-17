@@ -88,6 +88,13 @@ app.patch('/todos/:id', (req, res) => {
    })
 });
 
+app.post('/users', (req, res) => {
+   let user = _.pick(req.body, ['email', 'password']);
+   new User(user).save()
+   .then(doc => res.send(doc))
+   .catch(err => res.status(400).send());
+});
+
 app.listen(port, () => console.log(`Started on port ${port}`));
 
 module.exports = {app};
