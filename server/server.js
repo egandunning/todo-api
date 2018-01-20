@@ -89,10 +89,17 @@ app.patch('/todos/:id', (req, res) => {
 });
 
 app.post('/users', (req, res) => {
-   let user = _.pick(req.body, ['email', 'password']);
-   new User(user).save()
-   .then(doc => res.send(doc))
-   .catch(err => res.status(400).send());
+   let userData = _.pick(req.body, ['email', 'password']);
+   let user = new User(userData);
+   user.save()
+   .then(() => {
+      return user.generateAuthToken();
+   })
+   .then(token => res.header('x-auth', token).send(user)) // 'x-' means custom header
+   .catch(err => {
+      console.log(err);
+      res.status(400).send();
+   });
 });
 
 app.listen(port, () => console.log(`Started on port ${port}`));
