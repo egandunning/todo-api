@@ -102,7 +102,16 @@ app.post('/users', (req, res) => {
    });
 });
 
-
+app.post('/users/login', (req, res) => {
+   let userData = _.pick(req.body, ['email', 'password']);
+   User.validateUser(userData.email, userData.password, (err, user) => {
+      if(err) {
+         console.log(err);
+         return res.status(404).send();
+      }
+      res.send(user);
+   });
+});
 
 app.get('/users/me', authenticate, (req, res) => {
    res.send(req.user);

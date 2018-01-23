@@ -72,6 +72,25 @@ UserSchema.statics.findByToken = function(token) {
    });
 };
 
+UserSchema.statics.validateUser = function(email, password, callback) {
+   let user = User.findOne({email})
+   .then(user => {
+      bcrypt.compare(password, user.password, (err, res) => {
+         if(err) {
+            callback(err);
+         }
+         if(res) {
+            callback(null, user);
+         } else {
+            callback();
+         }
+      });
+   })
+   .catch((err) => {
+      callback(err);
+   }); 
+};
+
 //runs whenever a document is saved
 UserSchema.pre('save', function(next) {
    //if password was modified, hash password
