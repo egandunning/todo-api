@@ -98,7 +98,6 @@ app.post('/users', (req, res) => {
    })
    .then(token => res.header('x-auth', token).send(user)) // 'x-' means custom header
    .catch(err => {
-      console.log(err);
       res.status(400).send();
    });
 });
