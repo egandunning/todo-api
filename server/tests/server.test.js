@@ -6,27 +6,13 @@ const {ObjectID} = require('mongodb');
 
 const {app} = require('./../server.js');
 const {Todo} = require('./../models/todo');
+const {User} = require('./../models/user');
+const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 
-
-const ids = [new ObjectID(), new ObjectID()];
-
-const todos = [{
-   _id: ids[0],
-   text: 'First test todo'
-}, {
-   _id: ids[1],
-   text: 'Second test todo',
-   completed: true,
-   completedAt: 123456
-}];
 
 //runs before every test (calls to it())
-beforeEach(done => {
-   Todo.remove({})
-   .then(() => {
-      Todo.insertMany(todos).then(() => done())
-   });
-});
+beforeEach(populateUsers);
+beforeEach(populateTodos);
 
 describe('POST /todos', () => {
    it('should create a new todo', done => {
@@ -73,7 +59,7 @@ describe('POST /todos', () => {
 describe('PATCH /todos/:id', () => {
    it('should update the todo', done => {
       request(app)
-      .patch(`/todos/${ids[0]}`)
+      .patch(`/todos/${todos[0]._id}`)
       .send({
          text: 'changed',
          completed: true
@@ -89,7 +75,7 @@ describe('PATCH /todos/:id', () => {
 
    it('should clear the completedAt property', done => {
       request(app)
-      .patch(`/todos/${ids[0]}`, {
+      .patch(`/todos/${todos[0]._id}`, {
          text: 'changed',
          completed: false
       })
@@ -136,7 +122,7 @@ describe('GET /todos/:id', () => {
 describe('DELETE /todos/:id', () => {
    it('should delete a todo', done => {
       request(app)
-      .delete(`/todos/${ids[0]}`)
+      .delete(`/todos/${todos[0]._id}`)
       .expect(200)
       .expect(res => expect(res.body.deleted.text).toBe(todos[0].text))
       .end((err, res) => {
@@ -144,7 +130,7 @@ describe('DELETE /todos/:id', () => {
             return done(err);
          }
          
-         Todo.findById(ids[0])
+         Todo.findById(todos[0]._id)
          .then(res => {
             expect(res).toBe(null);
             return done();
