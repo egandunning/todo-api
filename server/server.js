@@ -104,12 +104,12 @@ app.post('/users', (req, res) => {
 
 app.post('/users/login', (req, res) => {
    let userData = _.pick(req.body, ['email', 'password']);
-   User.validateUser(userData.email, userData.password, (err, user) => {
-      if(err) {
-         console.log(err);
-         return res.status(404).send();
-      }
+   User.validateUser(userData.email, userData.password)
+   .then(user => {
       res.send(user);
+   })
+   .catch(err => {
+      res.status(400).send();
    });
 });
 

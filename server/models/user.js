@@ -72,22 +72,25 @@ UserSchema.statics.findByToken = function(token) {
    });
 };
 
-UserSchema.statics.validateUser = function(email, password, callback) {
-   let user = User.findOne({email})
+UserSchema.statics.validateUser = function(email, password) {
+   return User.findOne({email})
    .then(user => {
-      bcrypt.compare(password, user.password, (err, res) => {
-         if(err) {
-            callback(err);
-         }
-         if(res) {
-            callback(null, user);
-         } else {
-            callback();
-         }
+      if(!user) {
+         return Promise.reject();
+      }
+
+      return new Promise((resolve, reject) => {
+         bcrypt.compare(password, user.password, (err, res) => {
+            if(res) {
+               resolve(user);
+            }
+            reject();
+         });
       });
+      
    })
    .catch((err) => {
-      callback(err);
+      return Promise.reject(err);
    }); 
 };
 
