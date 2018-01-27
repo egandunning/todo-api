@@ -14,12 +14,13 @@ const {todos, populateTodos, users, populateUsers} = require('./seed/seed');
 beforeEach(populateUsers);
 beforeEach(populateTodos);
 
-/*describe('POST /todos', () => {
+describe('POST /todos', () => {
    it('should create a new todo', done => {
       let text = 'Test todo text attribute';
 
       request(app)
       .post('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send({text})
       .expect(200)
       .expect(res => expect(res.body.text).toBe(text))
@@ -37,9 +38,10 @@ beforeEach(populateTodos);
       });
    });
 
-   it('should not create todo with invalid argument', done => {
+   it('should not create todo with invalid body data', done => {
       request(app)
       .post('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .send({})
       .expect(400)
       .end((err, res) => {
@@ -89,8 +91,9 @@ describe('GET /todos', () => {
    it('should get all todos', done => {
       request(app)
       .get('/todos')
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
-      .expect(res => expect(res.body.todos.length).toBe(2))
+      .expect(res => expect(res.body.todos.length).toBe(1))
       .end(done);
    });
 });
@@ -177,7 +180,7 @@ describe('GET users/me', () => {
       .expect(res => expect(res.body).toEqual({}))
       .end(done);
    });
-});*/
+});
 
 describe('POST users', () => {
    it('should create a new user', done => {
