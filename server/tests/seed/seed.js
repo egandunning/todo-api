@@ -30,7 +30,11 @@ const users = [{
 }, {
    _id: userIds[1],
    email: 'user2@test.com',
-   password: 'password2'
+   password: 'password2',
+   tokens: [{
+      access: 'auth',
+      token: jwt.sign({_id: userIds[1], access: 'auth'}, 'secret').toString()
+   }]
 }];
 
 const populateTodos = done => {
