@@ -161,7 +161,14 @@ describe('DELETE /todos/:id', () => {
       .delete(`/todos/${todos[1]._id.toHexString()}`)
       .set('x-auth', users[0].tokens[0].token)
       .expect(404)
-      .end(done);
+      .end((err, res) => {
+         Todo.findById(todos[1]._id)
+         .then(todo => {
+            expect(todo.body).toBe(todos[1].body);
+            done();
+         })
+         .catch(err => done(err));
+      });
    });
 
    it('should return 404 if not found', done => {
