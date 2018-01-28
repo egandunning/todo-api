@@ -69,7 +69,7 @@ app.delete('/todos/:id', authenticate, (req, res) => {
    .catch(err => res.status(400).send(err));
 });
 
-app.patch('/todos/:id', (req, res) => {
+app.patch('/todos/:id', authenticate, (req, res) => {
    if(!ObjectID.isValid(req.params.id)) {
       return res.status(404).send();
    }
@@ -83,7 +83,10 @@ app.patch('/todos/:id', (req, res) => {
       body.completedAt = null;
    }
 
-   Todo.findByIdAndUpdate(req.params.id, {$set:body}, {new: true})
+   Todo.findOneAndUpdate({
+      _id: req.params.id,
+      _creator: req.user._id
+   }, {$set:body}, {new: true})
    .then(todo => {
       if(!todo) {
          return res.status(404).send();

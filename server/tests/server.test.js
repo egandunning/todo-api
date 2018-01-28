@@ -62,6 +62,7 @@ describe('PATCH /todos/:id', () => {
    it('should update the todo', done => {
       request(app)
       .patch(`/todos/${todos[0]._id}`)
+      .set('x-auth', users[0].tokens[0].token)
       .send({
          text: 'changed',
          completed: true
@@ -81,10 +82,31 @@ describe('PATCH /todos/:id', () => {
          text: 'changed',
          completed: false
       })
+      .set('x-auth', users[0].tokens[0].token)
       .expect(200)
       .expect(res => expect(res.body.completed).toBe(undefined))
       .end(done);
-   })
+   });
+
+   it('should not update todos created by other users', done => {
+      request(app)
+      .patch(`/todos/${todos[0]._id}`)
+      .set('x-auth', users[1].tokens[0].token)
+      .send({text: 'changed'})
+      .expect(404)
+      .end((err, res) => {
+         if(err) {
+            return done(err);
+         }
+
+         Todo.findById(todos[0]._id)
+         .then(todo => {
+            expect(todo.text).toBe(todos[0].text);
+            done();
+         })
+         .catch(err => done(err));
+      })
+   });
 });
 
 describe('GET /todos', () => {
