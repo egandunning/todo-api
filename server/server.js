@@ -51,22 +51,24 @@ app.get('/todos/:id', authenticate, (req, res) => {
    .catch(err => res.status(400).send());
 });
 
-app.delete('/todos/:id', authenticate, (req, res) => {
+app.delete('/todos/:id', authenticate, async (req, res) => {
    if(!ObjectID.isValid(req.params.id)) {
       return res.status(404).send();
    }
 
-   Todo.findOneAndRemove({
-      _id: req.params.id,
-      _creator: req.user._id
-   })
-   .then(deleted => {
+   try {
+      const deleted = await Todo.findOneAndRemove({
+         _id: req.params.id,
+         _creator: req.user._id
+      });
+
       if(deleted) {
          return res.send({deleted});
       }
+      throw new Error();
+   } catch(e) {
       return res.status(404).send();
-   })
-   .catch(err => res.status(400).send(err));
+   }
 });
 
 app.patch('/todos/:id', authenticate, (req, res) => {
@@ -99,37 +101,37 @@ app.patch('/todos/:id', authenticate, (req, res) => {
    })
 });
 
-app.post('/users', (req, res) => {
-   let userData = _.pick(req.body, ['email', 'password']);
-   let user = new User(userData);
-   user.save()
-   .then(() => {
-      return user.generateAuthToken();
-   })
-   .then(token => res.header('x-auth', token).send(user)) // 'x-' means custom header
-   .catch(err => {
+app.post('/users', async (req, res) => {
+   try {
+      let userData = _.pick(req.body, ['email', 'password']);
+      let user = new User(userData);
+      await user.save();
+      let token = await user.generateAuthToken();
+      res.header('x-auth', token).send(user) // 'x-' means custom header
+   } catch(e) {
       res.status(400).send();
-   });
+   }
 });
 
-app.post('/users/login', (req, res) => {
-   let userData = _.pick(req.body, ['email', 'password']);
-   User.validateUser(userData.email, userData.password)
-   .then(user => {
-      user.generateAuthToken()
-      .then(token => {
-         res.header('x-auth', token).send(user);
-      });
-   })
-   .catch(err => {
+app.post('/users/login', async (req, res) => {
+   try {
+      let userData = _.pick(req.body, ['email', 'password']);
+      const user = await User.validateUser(userData.email, userData.password);
+      const token = await user.generateAuthToken();
+      
+      res.header('x-auth', token).send(user);
+   } catch(e) {
       res.status(400).send();
-   });
+   }
 });
 
-app.delete('/users/me/token', authenticate, (req, res) => {
-   req.user.removeToken(req.token)
-   .then(() => res.send())
-   .catch(() => res.status(400).send());
+app.delete('/users/me/token', authenticate, async (req, res) => {
+   try {
+      await req.user.removeToken(req.token);
+      return res.send();
+   } catch(e) {
+      res.status(400).send();
+   }
 });
 
 app.get('/users/me', authenticate, (req, res) => {
