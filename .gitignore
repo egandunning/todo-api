@@ -12,3 +12,6 @@ node_modules/
 
 #config file
 server/config/config.json
+
+#vim session
+*.ses
