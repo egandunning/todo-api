@@ -71,7 +71,7 @@ app.delete('/todos/:id', authenticate, async (req, res) => {
    }
 });
 
-app.patch('/todos/:id', authenticate, (req, res) => {
+app.patch('/todos/:id', authenticate, async (req, res) => {
    if(!ObjectID.isValid(req.params.id)) {
       return res.status(404).send();
    }
@@ -85,20 +85,21 @@ app.patch('/todos/:id', authenticate, (req, res) => {
       body.completedAt = null;
    }
 
-   Todo.findOneAndUpdate({
-      _id: req.params.id,
-      _creator: req.user._id
-   }, {$set:body}, {new: true})
-   .then(todo => {
+   try {
+      let todo = await Todo.findOneAndUpdate({
+         _id: req.params.id,
+         _creator: req.user._id
+      }, {$set:body}, {new: true});
+      
       if(!todo) {
          return res.status(404).send();
       }
 
       res.send({todo});
-   })
-   .catch(err => {
-      res.status(400)
-   })
+      
+   } catch(err) {
+      res.status(400);
+   }
 });
 
 app.post('/users', async (req, res) => {
