@@ -10,12 +10,15 @@ const {User} = require('./models/user');
 const {authenticate} = require('./middleware/authenticate');
 
 
+//If PORT environment variable isn't set, use port 3000 by default
 const port = process.env.PORT || 3000;
 let app = express();
 
 //json() returns a function
 app.use(bodyParser.json());
 
+//Create a todo after authenticating user. Sends 400 status code
+//if authentication fails
 app.post('/todos', authenticate, (req, res) => {
    let todo = new Todo({
       text: req.body.text,
@@ -26,6 +29,9 @@ app.post('/todos', authenticate, (req, res) => {
    .catch(err => res.status(400).send());
 });
 
+//Get a todo belonging to a user. Sends 400 status code if
+//authentication fails. Sends 404 status code if todo doesn't
+//exist
 app.get('/todos', authenticate, (req, res) => {
    Todo.find({_creator: req.user._id})
    .then(todos => res.send({todos}))
@@ -96,7 +102,7 @@ app.patch('/todos/:id', authenticate, async (req, res) => {
       }
 
       res.send({todo});
-      
+
    } catch(err) {
       res.status(400);
    }
