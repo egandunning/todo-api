@@ -18,7 +18,7 @@ let app = express();
 app.use(bodyParser.json());
 
 //Create a todo after authenticating user. Sends 400 status code
-//if authentication fails
+//if authentication fails.
 app.post('/todos', authenticate, (req, res) => {
    let todo = new Todo({
       text: req.body.text,
@@ -29,15 +29,17 @@ app.post('/todos', authenticate, (req, res) => {
    .catch(err => res.status(400).send());
 });
 
-//Get a todo belonging to a user. Sends 400 status code if
-//authentication fails. Sends 404 status code if todo doesn't
-//exist
+//Get all todos belonging to a user. Sends 400 status code if
+//authentication fails.
 app.get('/todos', authenticate, (req, res) => {
    Todo.find({_creator: req.user._id})
    .then(todos => res.send({todos}))
    .catch(err => res.status(400).send());
 });
 
+//Get a todo belonging to a user. Sends 400 status code if
+//authentication fails. Sends 404 status code if todo doesn't
+//exist.
 app.get('/todos/:id', authenticate, (req, res) => {
 
    if(!ObjectID.isValid(req.params.id)) {
@@ -57,6 +59,10 @@ app.get('/todos/:id', authenticate, (req, res) => {
    .catch(err => res.status(400).send());
 });
 
+
+//Delete a todo belonging to a user. Sends 400 status code if
+//authentication fails. Sends 404 status code if todo doesn't
+//exist.
 app.delete('/todos/:id', authenticate, async (req, res) => {
    if(!ObjectID.isValid(req.params.id)) {
       return res.status(404).send();
@@ -77,6 +83,9 @@ app.delete('/todos/:id', authenticate, async (req, res) => {
    }
 });
 
+//Modify a todo belonging to a user. Sends 400 status code if
+//authentication fails. Sends 404 status code if todo doesn't
+//exist.
 app.patch('/todos/:id', authenticate, async (req, res) => {
    if(!ObjectID.isValid(req.params.id)) {
       return res.status(404).send();
@@ -108,6 +117,8 @@ app.patch('/todos/:id', authenticate, async (req, res) => {
    }
 });
 
+//Create a new user given an email and password. If user creation is
+//successful, send a response with security token in x-auth field of header.
 app.post('/users', async (req, res) => {
    try {
       let userData = _.pick(req.body, ['email', 'password']);
@@ -120,6 +131,9 @@ app.post('/users', async (req, res) => {
    }
 });
 
+//Authenticate a user based on username and password. If a user with the same
+//username and password exists, send response with security token in x-auth
+//field of header.
 app.post('/users/login', async (req, res) => {
    try {
       let userData = _.pick(req.body, ['email', 'password']);
@@ -132,6 +146,8 @@ app.post('/users/login', async (req, res) => {
    }
 });
 
+//Delete the token sent in x-auth header of request. Fulfills logout
+//functionality.
 app.delete('/users/me/token', authenticate, async (req, res) => {
    try {
       await req.user.removeToken(req.token);
@@ -141,6 +157,7 @@ app.delete('/users/me/token', authenticate, async (req, res) => {
    }
 });
 
+//Send the user data belonging to the currently logged in user.
 app.get('/users/me', authenticate, (req, res) => {
    res.send(req.user);
 });
