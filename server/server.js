@@ -8,6 +8,7 @@ const {mongoose} = require('./db/mongoose');
 const {Todo} = require('./models/todo');
 const {User} = require('./models/user');
 const {authenticate} = require('./middleware/authenticate');
+const {allowCors} = require('./middleware/cors');
 
 
 //If PORT environment variable isn't set, use port 3000 by default
@@ -16,6 +17,7 @@ let app = express();
 
 //json() returns a function
 app.use(bodyParser.json());
+app.use(allowCors);
 
 //Create a todo after authenticating user. Sends 400 status code
 //if authentication fails
